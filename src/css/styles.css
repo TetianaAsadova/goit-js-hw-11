@@ -1,0 +1,20 @@
+.search-form {
+    display: flex;
+    flex: wrap;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+}
+
+.search-form button {
+    cursor: pointer;
+}
+
+input {
+    padding: 8px;
+    font: inherit;
+}
+
+plceholder {
+    resize: none;
+}
