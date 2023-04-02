@@ -22,15 +22,17 @@ ref.moreBtn.addEventListener('click', onLoadMore.bind());
 
 
 
-function onSearch(e) {
+async function onSearch(e) {
   e.preventDefault();
   ref.gallery.innerHTML = '';
   searchQuery = e.currentTarget.elements.searchQuery.value;
   console.log(`searchQuery`, searchQuery);
   pageNumber = 1;
-  
-  if (searchQuery !== '') {
-    fetchPhotos(searchQuery, pageNumber).then((photos) => {
+
+  try {
+    if (searchQuery !== '') {
+      const photos = await fetchPhotos(searchQuery, pageNumber);
+      console.log(`photos`, photos);
       ref.gallery.innerHTML = '';
       if (photos.totalHits > 0) {
         Notiflix.Notify.info(`"Hooray! We found ${photos.totalHits} images."`);
@@ -42,13 +44,11 @@ function onSearch(e) {
       toggleMoreBtn(photos.totalHits);
       
       pageNumber += 1;
-    }).catch(error => {
+    }
+  } catch(error) {
       Notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
       console.log(error);
-    }).finally(() => {
-      e.target.reset();
-    })     
-  }  
+    } 
 };
 
 
@@ -66,6 +66,7 @@ function viewImg(photos) {
         comments,
         downloads,
       }) => {
+        console.log(`webformatURL`, webformatURL);
         return `<a class="gallery__item" href="${largeImageURL}">
           <div class="photo-card">
             <img class="gallery__image"
@@ -74,16 +75,16 @@ function viewImg(photos) {
               loading="lazy">
             <div class="info">
               <p class="info-item">
-                <b>Likes ${likes}</b>
+                <b>Likes <br>${likes}</b>
               </p>
               <p class="info-item">
-                <b>Views ${views}</b>
+                <b>Views <br>${views}</b>
               </p>
               <p class="info-item">
-                <b>Comments ${comments}</b>
+                <b>Comments <br>${comments}</b>
               </p>
               <p class="info-item">
-                <b>Downloads ${downloads}</b>
+                <b>Downloads <br>${downloads}</b>
               </p>
             </div>
           </div>
@@ -98,36 +99,41 @@ function viewImg(photos) {
 function toggleMoreBtn(photosNumber) {
   if (photosNumber > 0) {
     ref.moreBtn.classList.remove('load-more__btn_hidden');
+    
   } else {
     ref.moreBtn.classList.add('load-more__btn_hidden');
   }
 };
 
-function onLargePhoto(e) {
-    e.preventDefault();
-   console.log(`e`, e);
-    const isGalleryItem = e.target.classList.contains('gallery__image');
+// function onLargePhoto(e) {
+//     e.preventDefault();
+//    console.log(`e`, e);
+//     const isGalleryItem = e.target.classList.contains('gallery__image');
 
-    if (!isGalleryItem) {
-      return;
-    }
+//     if (!isGalleryItem) {
+//       return;
+//     }
 
-    var lightbox = new SimpleLightbox('.gallery a', { captionsData: 'alt', captionDelay: 250, }).refresh(); 
-};
+//     var lightbox = new SimpleLightbox('.gallery a', { captionsData: 'alt', captionDelay: 250, }).refresh(); 
+// };
 
 
-function onLoadMore() {
+async function onLoadMore() {
   ref.moreBtn.classList.add('load-more__btn_loading');
   ref.moreBtn.disabled = true;
 
   // ref.moreBtn.setAttribute('disabled', true);
     // ref.moreBtn.removeAttribute('disabled', true);
-  fetchPhotos(searchQuery, pageNumber).then((photos) => {
+  try {
+    const photos = await fetchPhotos(searchQuery, pageNumber);
+    console.log(`photos in onLoadMore`, photos);
     viewImg(photos.hits);
     pageNumber += 1;
     if ((photos.totalHits / 40) < pageNumber) {
       Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
     }
     
-  })
+  } catch (error) {
+    console.log(error);
+  }
 };
