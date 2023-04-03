@@ -22,8 +22,10 @@ ref.moreBtn.addEventListener('click', onLoadMore.bind());
 
 async function onSearch(e) {
   e.preventDefault();
+
   ref.gallery.innerHTML = '';
   searchQuery = e.currentTarget.elements.searchQuery.value.trim();
+  hiddenAgain();
   console.log(`searchQuery`, searchQuery);
   pageNumber = 1;
 
