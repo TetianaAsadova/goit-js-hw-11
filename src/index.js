@@ -20,8 +20,6 @@ let searchQuery = '';
 ref.form.addEventListener('submit', onSearch.bind());
 ref.moreBtn.addEventListener('click', onLoadMore.bind());
 
-
-
 async function onSearch(e) {
   e.preventDefault();
   ref.gallery.innerHTML = '';
@@ -32,15 +30,16 @@ async function onSearch(e) {
   try {
     if (searchQuery !== '') {
       const photos = await fetchPhotos(searchQuery, pageNumber);
-      console.log(`photos`, photos);
+      
       ref.gallery.innerHTML = '';
       if (photos.totalHits > 0) {
         Notiflix.Notify.info(`"Hooray! We found ${photos.totalHits} images."`);
       } else {
         Notiflix.Notify.info(`"Sorry, there are no images matching your search query. Please try again.`)
       }
-        
+      
       viewImg(photos.hits);
+      
       toggleMoreBtn(photos.totalHits);
       
       pageNumber += 1;
@@ -66,7 +65,6 @@ function viewImg(photos) {
         comments,
         downloads,
       }) => {
-        console.log(`webformatURL`, webformatURL);
         return `<a class="gallery__item" href="${largeImageURL}">
           <div class="photo-card">
             <img class="gallery__image"
@@ -98,12 +96,39 @@ function viewImg(photos) {
 
 function toggleMoreBtn(photosNumber) {
   if (photosNumber > 0) {
-    ref.moreBtn.classList.remove('load-more__btn_hidden');
-    
-  } else {
-    ref.moreBtn.classList.add('load-more__btn_hidden');
+    ref.moreBtn.classList.add("visible"); 
+    ref.moreBtn.classList.remove("load-more__btn"); 
+  } 
+  if ((photosNumber < 40) && (photosNumber > 0)){
+      Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+      hiddenAgain();
   }
 };
+
+async function onLoadMore() {
+  // ref.moreBtn.classList.add('load-more__btn_loading');
+  // ref.moreBtn.disabled = true;
+
+  // ref.moreBtn.setAttribute('disabled', true);
+    // ref.moreBtn.removeAttribute('disabled', true);
+  try {
+    const photos = await fetchPhotos(searchQuery, pageNumber);
+    viewImg(photos.hits);
+    pageNumber += 1;
+    if ((photos.totalHits / 40) < pageNumber) {
+      Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+      hiddenAgain();
+    }
+    
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+function hiddenAgain() {
+  ref.moreBtn.classList.remove("visible"); 
+  ref.moreBtn.classList.add("load-more__btn"); 
+}
 
 // function onLargePhoto(e) {
 //     e.preventDefault();
@@ -116,24 +141,3 @@ function toggleMoreBtn(photosNumber) {
 
 //     var lightbox = new SimpleLightbox('.gallery a', { captionsData: 'alt', captionDelay: 250, }).refresh(); 
 // };
-
-
-async function onLoadMore() {
-  ref.moreBtn.classList.add('load-more__btn_loading');
-  ref.moreBtn.disabled = true;
-
-  // ref.moreBtn.setAttribute('disabled', true);
-    // ref.moreBtn.removeAttribute('disabled', true);
-  try {
-    const photos = await fetchPhotos(searchQuery, pageNumber);
-    console.log(`photos in onLoadMore`, photos);
-    viewImg(photos.hits);
-    pageNumber += 1;
-    if ((photos.totalHits / 40) < pageNumber) {
-      Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-    }
-    
-  } catch (error) {
-    console.log(error);
-  }
-};

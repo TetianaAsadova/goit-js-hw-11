@@ -38,6 +38,14 @@ placeholder {
     
 }
 
+.load-more__btn {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
 .gallery {
     display: flex;
     flex-wrap: wrap;
@@ -45,11 +53,12 @@ placeholder {
     gap: 10px;
     padding: 0;
     list-style: none;
-    text-decoration: none;
+    /* text-decoration: none; */
 }
 
 .gallery__item {
     flex-basis: calc((100% - 30px) / 4);
+    text-decoration: none;
 }
 
 .gallery__image {
